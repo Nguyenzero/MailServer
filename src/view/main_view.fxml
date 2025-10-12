@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane style="-fx-background-color: linear-gradient(to bottom right, #f0f3f7, #ffffff);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
+
+    <!-- 🔹 Thanh trên cùng: đăng nhập & đăng ký -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #3b82f6;">
+            <padding>
+                <Insets bottom="10" left="15" right="15" top="10" />
+            </padding>
+
+            <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="📧 UDP Mail Client" />
+
+            <Pane HBox.hgrow="ALWAYS" />
+
+            <TextField fx:id="usernameField" promptText="Nhập tên tài khoản..." style="-fx-background-radius: 8; -fx-background-color: white; -fx-padding: 6;" />
+
+            <Button onAction="#handleLogin" style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 8;" text="Đăng nhập" />
+            <Button onAction="#handleRegister" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-background-radius: 8;" text="Đăng ký" />
+        </HBox>
+    </top>
+
+    <!-- 🔹 Thân chính -->
+    <center>
+        <SplitPane dividerPositions="0.65">
+            <!-- 🔸 Bên trái: nội dung email -->
+            <VBox spacing="8" style="-fx-padding: 10;">
+                <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="📨 Nội dung email" />
+                <TextArea fx:id="emailContent" editable="false" prefHeight="347.0" prefWidth="361.0" style="-fx-font-family: 'Consolas'; -fx-font-size: 13px;                                   -fx-background-radius: 10; -fx-control-inner-background: #f8fafc;" wrapText="true" />
+            </VBox>
+
+            <!-- 🔸 Bên phải: danh sách email -->
+            <VBox spacing="8" style="-fx-padding: 10;">
+                <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="📋 Danh sách email" />
+                <ListView fx:id="emailList" style="-fx-background-radius: 10; -fx-control-inner-background: #f1f5f9;" />
+            </VBox>
+        </SplitPane>
+    </center>
+
+    <!-- 🔹 Thanh dưới: gửi email -->
+    <bottom>
+        <VBox spacing="8" style="-fx-padding: 10; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1 0 0 0;">
+            <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="✉️ Gửi email mới" />
+
+            <HBox spacing="10">
+                <TextField fx:id="targetField" prefHeight="30.0" prefWidth="518.0" promptText="Người nhận..." style="-fx-background-radius: 8; -fx-padding: 6;" />
+                <Button onAction="#handleSendEmail" prefHeight="26.0" prefWidth="141.0" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 8;                                 -fx-font-weight: bold;" text="Gửi" />
+            </HBox>
+
+            <TextArea fx:id="sendContent" prefRowCount="3" promptText="Nhập nội dung email..." style="-fx-background-radius: 10; -fx-control-inner-background: white; -fx-font-family: 'Segoe UI';" wrapText="true" />
+        </VBox>
+    </bottom>
+
+</BorderPane>
