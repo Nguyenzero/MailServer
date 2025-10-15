@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 public class MailClient {
     private static final int SERVER_PORT = 9876;
-    private static final String SERVER_IP = "192.168.1.102";
+    private static final String SERVER_IP = "10.39.110.214";
 
     // Persistent notification listener
     private static DatagramSocket notifySocket;

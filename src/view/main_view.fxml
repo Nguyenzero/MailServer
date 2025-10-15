@@ -19,6 +19,8 @@
 
             <TextField fx:id="usernameField" promptText="Nhập tên tài khoản..." style="-fx-background-radius: 8; -fx-background-color: white; -fx-padding: 6;" />
 
+            <PasswordField fx:id="passwordField" promptText="Nhập mật khẩu..." style="-fx-background-radius: 8; -fx-background-color: white; -fx-padding: 6;" />
+
             <Button onAction="#handleLogin" style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 8;" text="Đăng nhập" />
             <Button onAction="#handleRegister" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-background-radius: 8;" text="Đăng ký" />
         </HBox>
@@ -27,7 +29,7 @@
     <!-- 🔹 Thân chính -->
     <center>
         <SplitPane dividerPositions="0.65">
-            <!-- 🔸 Bên trái: nội dung email -->
+            <!-- �� Bên trái: nội dung email -->
             <VBox spacing="8" style="-fx-padding: 10;">
                 <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="📨 Nội dung email" />
                 <TextArea fx:id="emailContent" editable="false" prefHeight="347.0" prefWidth="361.0" style="-fx-font-family: 'Consolas'; -fx-font-size: 13px;                                   -fx-background-radius: 10; -fx-control-inner-background: #f8fafc;" wrapText="true" />
@@ -47,9 +49,11 @@
             <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="✉️ Gửi email mới" />
 
             <HBox spacing="10">
-                <TextField fx:id="targetField" prefHeight="30.0" prefWidth="518.0" promptText="Người nhận..." style="-fx-background-radius: 8; -fx-padding: 6;" />
+                <ChoiceBox fx:id="recipientChoiceBox" prefHeight="30.0" prefWidth="150.0" style="-fx-background-radius: 8;" />
                 <Button onAction="#handleSendEmail" prefHeight="26.0" prefWidth="141.0" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 8;                                 -fx-font-weight: bold;" text="Gửi" />
             </HBox>
+
+            <TextField fx:id="subjectField" promptText="Nhập tiêu đề..." style="-fx-background-radius: 8; -fx-padding: 6;" />
 
             <TextArea fx:id="sendContent" prefRowCount="3" promptText="Nhập nội dung email..." style="-fx-background-radius: 10; -fx-control-inner-background: white; -fx-font-family: 'Segoe UI';" wrapText="true" />
         </VBox>

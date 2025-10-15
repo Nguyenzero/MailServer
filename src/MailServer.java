@@ -46,27 +46,30 @@ public class MailServer {
     // 🧩 Hàm xử lý yêu cầu
     private static String handleRequest(String request, InetAddress clientAddress, int clientPort, DatagramSocket socket) {
         try {
-            String[] parts = request.split(":", 4);
+            String[] parts = request.split(":", 5);
             String command = parts[0];
 
             switch (command) {
                 case "REGISTER":
-                    return registerAccount(parts[1]);
+                    return registerAccount(parts[1], parts[2]);
 
                 case "LOGIN": {
-                    // Supports: LOGIN:<username> or LOGIN:<username>:<listenPort>
                     String username = parts[1];
+                    String password = parts[2];
                     int portToUse = clientPort;
-                    if (parts.length >= 3) {
-                        try { portToUse = Integer.parseInt(parts[2]); } catch (Exception ignore) { portToUse = clientPort; }
+                    if (parts.length >= 4) {
+                        try { portToUse = Integer.parseInt(parts[3]); } catch (Exception ignore) { portToUse = clientPort; }
                     }
-                    onlineUsers.put(username, new ClientInfo(clientAddress, portToUse));
-                    return listEmails(username);
+                    if (validateLogin(username, password)) {
+                        onlineUsers.put(username, new ClientInfo(clientAddress, portToUse));
+                        return listEmails(username);
+                    }
+                    return "Đăng nhập thất bại. Sai tên tài khoản hoặc mật khẩu.";
                 }
 
                 case "SEND":
                     // Cấu trúc: SEND:<target>:<sender>:<content>
-                    return sendEmail(parts[1], parts[2], parts[3], socket);
+                    return sendEmail(parts[1], parts[2], clientAddress.getHostAddress(), parts[3], parts[4], socket);
 
                 case "GET_EMAIL":
                     return getEmailContent(parts[1], parts[2]);
@@ -79,6 +82,9 @@ public class MailServer {
                     onlineUsers.remove(parts[1]);
                     return "Đăng xuất thành công.";
 
+                case "LIST_ACCOUNTS":
+                    return listAccounts();
+
                 default:
                     return "UNKNOWN_COMMAND";
             }
@@ -88,19 +94,32 @@ public class MailServer {
     }
 
     // 🟢 Đăng ký tài khoản
-    private static String registerAccount(String username) throws IOException {
+    private static String registerAccount(String username, String password) throws IOException {
         Path userDir = Paths.get(BASE_DIR, username);
         if (!Files.exists(userDir)) {
             Files.createDirectories(userDir);
-            Path newEmailFile = userDir.resolve("welcome_message.txt");
-            Files.writeString(newEmailFile, "Chào mừng " + username + " đến với Mail Server!");
+            Path accountFile = userDir.resolve("account.txt");
+            String creationTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
+            Files.writeString(accountFile, "Username: " + username + "\nPassword: " + password + "\nCreated: " + creationTime);
             return "Đăng ký thành công!";
         }
         return "USER_EXISTS";
     }
 
+    private static boolean validateLogin(String username, String password) throws IOException {
+        Path accountFile = Paths.get(BASE_DIR, username, "account.txt");
+        if (!Files.exists(accountFile)) return false;
+        List<String> lines = Files.readAllLines(accountFile);
+        for (String line : lines) {
+            if (line.startsWith("Password: ") && line.substring(10).equals(password)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // 🟢 Gửi email — có gửi realtime nếu người nhận đang online
-    private static String sendEmail(String targetUser, String sender, String content, DatagramSocket socket) throws IOException {
+    private static String sendEmail(String targetUser, String sender, String senderIP, String subject, String content, DatagramSocket socket) throws IOException {
         Path userDir = Paths.get(BASE_DIR, targetUser);
         if (!Files.exists(userDir)) return "Người dùng không tồn tại!";
 
@@ -112,7 +131,9 @@ public class MailServer {
 
         // ✅ Ghi nội dung email có định dạng đẹp
         String fullContent = "💌 Từ: " + sender +
+                "\n🌐 IP: " + senderIP +
                 "\n🕒 Thời gian: " + displayTime +
+                "\n📜 Tiêu đề: " + subject +
                 "\n\n" + content;
         Files.writeString(userDir.resolve(fileName), fullContent);
 
@@ -146,6 +167,22 @@ public class MailServer {
         Path filePath = Paths.get(BASE_DIR, username, filename);
         if (!Files.exists(filePath)) return "Email Không Tồn Tại";
         return Files.readString(filePath);
+    }
+
+    // 🟢 Trả về danh sách tài khoản đã đăng ký
+    private static String listAccounts() throws IOException {
+        Path baseDir = Paths.get(BASE_DIR);
+        if (!Files.exists(baseDir)) return "ACCOUNTS:";
+
+        StringBuilder sb = new StringBuilder("ACCOUNTS:");
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(baseDir)) {
+            for (Path dir : stream) {
+                if (Files.isDirectory(dir)) {
+                    sb.append(dir.getFileName().toString()).append(",");
+                }
+            }
+        }
+        return sb.toString();
     }
 
     // 🧭 Tìm IPv4 của adapter Wi-Fi; ưu tiên site-local. Fallback site-local bất kỳ, rồi 0.0.0.0
